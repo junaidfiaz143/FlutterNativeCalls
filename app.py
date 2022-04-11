@@ -1,5 +1,5 @@
 import os, sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QProgressDialog, QToolBar, QSizePolicy, QLineEdit, QMenu, QInputDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QMessageBox, QProgressDialog, QToolBar, QAction, QStatusBar, QSizePolicy, QLineEdit, QMenu, QMenuBar, QInputDialog
 from PyQt5.QtGui import QCursor
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QUrl, Qt
@@ -15,13 +15,34 @@ args = vars(ap.parse_args())
 myappid = u"inventors.daraz.seller.0.0.1"
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
-class MyApp(QWidget):
+class MyApp(QMainWindow):
 
 	def __init__(self, url):
 		super().__init__()
 
 		self.url = url
 		QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+		self.status = QStatusBar() 
+
+		# setting status bar to the main window 
+		self.setStatusBar(self.status)
+		menuBar = QMenuBar(self)
+		self.setMenuBar(menuBar)
+
+		fileMenu = QMenu("&File", self)
+		menuBar.addMenu(fileMenu)
+
+		self.bookmark_bar = QToolBar('Bookmark')
+		# self.bookmark_bar.setIconSize(QSize(12, 12))
+		self.bookmark_bar.setMovable(False)
+		self.addToolBar(self.bookmark_bar)
+
+		 # similarly adding next button 
+		next_btn = QAction("Forward", self) 
+		next_btn.setStatusTip("Forward to next page") 
+		next_btn.triggered.connect(lambda: self.tabs.currentWidget().forward()) 
+		self.bookmark_bar.addAction(next_btn) 
+
 		self.initUI()
 
 	def closeEvent(self, event):
@@ -47,6 +68,11 @@ class MyApp(QWidget):
 		self.web.setWindowIcon(QIcon("resources/icons/daraz.ico"))
 		# self.web.load(QUrl("https://sellercenter.daraz.pk/"))
 		# self.web.load(QUrl("https://junaidfiaz143.wordpress.com"))
+		
+		menuBar = QMenuBar(self)
+		self.setMenuBar(menuBar)
+
+
 		self.web.load(QUrl(self.url))
 		self.web.showMaximized()
 		self.web.show()
